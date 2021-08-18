@@ -6,5 +6,5 @@ Como funciones que se buscaban lograr son:
 - enviar mensajes cada cierto intervalo de tiempo. Se logra mediante libreria task
 - responder a cierto mensaje, mediante listener de discord py
 
-
+Basado en FreeCodeAcademy: https://www.youtube.com/watch?v=SPTfmiYiuok
 
