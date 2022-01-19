@@ -17,7 +17,7 @@ val = True
  
 cMensajes = 0  
 
-listaQuien = [ #problema de ser siempre lo mismo
+listaQuien = [  
   "qin ti priginti prrin",
   "who asked you, little doggie"
 ]
@@ -25,8 +25,8 @@ listaQuien = [ #problema de ser siempre lo mismo
 #que haga un ua de variable duracion y mayusculas
 #uaa, ua,  uaAAa, uaAA, uaAa
 
-listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa" 
-] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas 
+#listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa" 
+#] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas 
  
 def getUa():
   pal = getPalabra(random.randint(1,5)) # largo palabra
@@ -79,7 +79,8 @@ async def on_message(message):
         await message.channel.send("lis carrir ni sirvin")
 
     if (message.content == "ua"):
-       await message.channel.send(pick_ele(listaUA))       
+      # await message.channel.send(pick_ele(listaUA))     #elige de lista de ua hardcodeada al azar
+       await message.channel.send(getUa())      # genera un ua de random largo, mezcla mayus y minus
     #    await message.channel.send('UA {}'.format(message.author.name)) 
 
     if (id_persona == nro_shaxi) and (ruleta_magica() > 1):
