@@ -5,6 +5,7 @@ from latidos import mantener_vivo
 from discord.ext import commands, tasks
 import asyncio
 import random
+from random import choice
 
 client = discord.Client()
 nro_canal = 791515934237917244
@@ -13,43 +14,39 @@ nro_echoes = 719244116713799702
 nro_shaxi = 724373714535186472
 val = True
 
-#que haga un ua de variable duracion y mayusculas
-#uaa, ua,  uaAAa, uaAA, uaAa
-
-cMensajes = 0 #esto podria no hardcodearse, iterar => getUa
-listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa" 
-]
-
+ 
+cMensajes = 0  
 
 listaQuien = [ #problema de ser siempre lo mismo
   "qin ti priginti prrin",
   "who asked you, little doggie"
 ]
-""" 
-def generar_listaUA():
-  size =
-  cualA = flip coin 
-  lista = []
-  for 1 to size do:
-    lista.append(cualA)
-  
-  return lista
-"""
 
+#que haga un ua de variable duracion y mayusculas
+#uaa, ua,  uaAAa, uaAA, uaAa
+
+listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa" 
+] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas 
+ 
 def getUa():
-  cantidadA = random.randint(1,4)
-  
+  pal = getPalabra(random.randint(1,5)) # largo palabra
+  return getMayusculasRandom(pal)
+   
+
+def getPalabra(cantidadA):
   pal = "u"
   i = 0
   while i < cantidadA: ## ua, uaaa, uaaa
     pal = pal + "a"
     i += 1
-  ##convierto en mayuscula una letra determinada, tambien podria agregarse que sea una funcion y tome parametro para volver randomar el numero de mayusculas
-  indiceMayuscula = random.randint(0, len(pal) - 1)
-  pal[indiceMayuscula] = pal[indiceMayuscula].upper()
   return pal
 
+def getMayusculasRandom(pal): # devuelve mayus arbitrarias "hola" hOlA hoLA
+  eleccionMayus = zip(pal.lower(),pal.upper())  #("H","h"), ("O","o")
+  return "".join(map(choice, eleccionMayus)) # que eliga entre cada una y luego pase a string con join
 
+ 
+ 
 
 def pick_ele(lista):
   nroRand = random.randint(0,  len(lista) - 1)
