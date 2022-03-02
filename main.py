@@ -11,7 +11,7 @@ client = discord.Client()
 nro_canal = 791515934237917244
 nro_general = 828489491450560603
 nro_echoes = 719244116713799702
-nro_shaxi = 724373714535186472
+nro_shaxi = 939213296031113217
 val = True
 
  
