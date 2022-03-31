@@ -9,8 +9,6 @@ from random import choice
 # ] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas
  
 
-
-
 def getPalabra(cantidadA):  # utilizar clases para ua estaria mejor
     pal = "u"
     i = 0

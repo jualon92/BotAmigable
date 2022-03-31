@@ -8,7 +8,9 @@ from discord.ext import commands, tasks
 import asyncio
 import random
 from discord.ext import commands
- 
+import requests
+import json
+from mercado import *
 
 client = discord.Client()
 nro_canal = 791515934237917244
@@ -36,6 +38,7 @@ async def on_ready():
 bot = commands.Bot(command_prefix='!')
 
 
+
 #personas se juntan a elegir quien le toca primero y a quien ultimo aleatoriamente
 @bot.command(name="rank_random", help="devuelve ranking entre nombres aleatorio => rank_random p1 p2 p3...")
 async def tirar_dado(ctx, *argv):
@@ -50,7 +53,30 @@ async def tirar_dado(ctx, *argv):
     #fraseNueva = str(contador) + " puesto: " + " " + nombre  +    "\n"
     personasLista =  personasLista + fraseNueva
   await ctx.send(personasLista)
-   
+
+
+
+# Se piden datos de mercado de mmorpg de cotizacion de moneda virtual  
+@bot.command(name="plex", help="precio de plex en Eve Online desde api ")
+async def obtener_plex_precio(ctx):
+  # obtengo objeto Response
+   response_API = requests.get("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142")  
+   data = response_API.json() #
+   listaBuy = data[0].get("buy")
+   listaSell = data[0].get("sell") 
+  
+   precioCompraAVG = (listaBuy.get("avg") * 500) / 1000000000 # convencion es hablar de  1.3Billones 
+   precioVentaAVG = listaSell.get("avg") * 500  / 1000000000
+    
+   mensajePlexCompra =  f" Jita (4:4) \nPlex para la Compra: {precioCompraAVG:.2f} Millones"
+   mensajePlexVenta = f"Plex para la Venta:   {precioVentaAVG:.2f} Millones"
+   await ctx.send(mensajePlexCompra + "\n" +  mensajePlexVenta )
+ 
+  
+#Ideas a implementar
+#subio o bajo un producto en comparacion a la semana o mes pasado? estaria bueno implementarlo de alguna manera
+#conseguir el precio de cualquier item sin tener que entrar al juego
+
 
 
 
@@ -88,6 +114,7 @@ async def on_message(message):
         # string interp
         await message.channel.send(f"quien te conoce,  {message.author.name}")
 
+    
     # if message.author.id == 141937575999963136 and "system" not in presentes:
         # presentes.append("system")
        # await message.channel.send("System claimed")
