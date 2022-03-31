@@ -1,6 +1,6 @@
 import discord
 import aiocron
-from .personas import *
+from personas import shaxi, juani
 import os
 from latidos import mantener_vivo
 from discord.ext import commands, tasks
@@ -47,13 +47,8 @@ def getMayusculasRandom(pal):  # devuelve mayus arbitrarias "hola" hOlA hoLA
     # que eliga entre cada una y luego pase a string con join
     return "".join(map(choice, eleccionMayus))
 
+
  
-
-def no_estaPresente(id):
-    return id not in presentes
-
-
-
 #Main
 @client.event
 async def on_ready():
@@ -68,10 +63,10 @@ async def on_message(message):
     global presentes
     global resultado
     id_persona = message.author.id
-    mensajeDicho = message.content.lowerCase()
+    mensajeDicho = message.content.lower()
 
     # si no es persona ya hablada por hoy
-    if mensajeDicho == "carrier" and no_estaPresente(id_persona):
+    if mensajeDicho == "carrier" and id_persona not in presentes:
         presentes.append(id_persona)
         await message.channel.send("lis carrir ni sirvin")
 
@@ -81,13 +76,16 @@ async def on_message(message):
         await message.channel.send(getUa())
     #    await message.channel.send('UA {}'.format(message.author.name))
 
-    if (shaxi.tiene_id(id_persona)) and (shaxi.tiene_malasuerte):
+    if (shaxi.tiene_id(id_persona)) and (shaxi.tiene_malasuerte()):
         await message.channel.send(shaxi.get_joke())
 
-    if mensajeDicho == "quien" and no_estaPresente(id_persona):
+    if (juani.tiene_id(id_persona)) and (juani.tiene_malasuerte()):
+        await message.channel.send(juani.get_joke())
+
+    if "quien" in mensajeDicho and id_persona not in presentes: 
         presentes.append(id_persona)
         # string interp
-        await message.channel.send(f"quien te conoce, {message.author.name}")
+        await message.channel.send(f"quien te conoce,  {message.author.name}")
 
     # if message.author.id == 141937575999963136 and "system" not in presentes:
         # presentes.append("system")
