@@ -1,6 +1,16 @@
 import random
 from random import choice
 
+
+# que haga un ua de variable duracion y mayusculas
+#uaa, ua,  uaAAa, uaAA, uaAa
+
+# listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa"
+# ] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas
+ 
+
+
+
 def getPalabra(cantidadA):  # utilizar clases para ua estaria mejor
     pal = "u"
     i = 0

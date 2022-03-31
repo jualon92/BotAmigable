@@ -7,8 +7,8 @@ from latidos import mantener_vivo
 from discord.ext import commands, tasks
 import asyncio
 import random
+from discord.ext import commands
  
-
 
 client = discord.Client()
 nro_canal = 791515934237917244
@@ -24,14 +24,7 @@ listaQuien = [
     "who asked you, little doggie"
 ]
 
-# que haga un ua de variable duracion y mayusculas
-#uaa, ua,  uaAAa, uaAA, uaAa
-
-# listaUA = ["ua","UaA", "UaA", "Uaa", "UAaA", "UAAaA", "UaaA", "UaaAA", "UaAaA", "uAaa", "uaAa", "uaaA", "uaaa"
-# ] ##esta mejor que se genere por funciones, 1. se devuelve un uaa de random largo, y luego se vuelven mayusculas minusculas
- 
- 
-#Main
+ #Main
 @client.event
 async def on_ready():
     print("logeado mediante usuario {0.user}".format(client))
@@ -39,7 +32,29 @@ async def on_ready():
     # client.user a string
 
 
-@client.event
+#command implementa !help con resumen de comandos, y utiliza prefijo
+bot = commands.Bot(command_prefix='!')
+
+
+#personas se juntan a elegir quien le toca primero y a quien ultimo aleatoriamente
+@bot.command(name="rank_random", help="devuelve ranking entre nombres aleatorio => rank_random p1 p2 p3...")
+async def tirar_dado(ctx, *argv):
+  contador = 0
+  personasLista = ""
+   #personasLista = f"{nombre} \n"
+  listaNueva = random.sample(argv, len(argv))  #agregar un titulo dificulta
+  for arg in  listaNueva:
+    contador = contador + 1 #podria utilizarse lista.index(ele). pero con contador ya empieza ranking en 1
+    #nombre = arg
+    fraseNueva = f"{str(contador)} puesto: {arg} \n"
+    #fraseNueva = str(contador) + " puesto: " + " " + nombre  +    "\n"
+    personasLista =  personasLista + fraseNueva
+  await ctx.send(personasLista)
+   
+
+
+
+@client.event #listener mensajes
 async def on_message(message):
     global val
     global presentes
@@ -47,6 +62,9 @@ async def on_message(message):
     id_persona = message.author.id
     mensajeDicho = message.content.lower()
 
+    if (message.author == client.user):# que respuesta del mismo bot no trigeree una respuesta
+      return  
+    
     # si no es persona ya hablada por hoy
     if mensajeDicho == "carrier" and id_persona not in presentes:
         presentes.append(id_persona)
@@ -60,9 +78,10 @@ async def on_message(message):
 
     if (shaxi.tiene_id(id_persona)) and (shaxi.tiene_malasuerte()):
         await message.channel.send(shaxi.get_joke())
-
-    if (juani.tiene_id(id_persona)) and (juani.tiene_malasuerte()):
-        await message.channel.send(juani.get_joke())
+      
+    #testing  
+    ##if (juani.tiene_id(id_persona)) and (juani.tiene_malasuerte()):
+    ##    await message.channel.send(juani.get_joke())
 
     if "quien" in mensajeDicho and id_persona not in presentes: 
         presentes.append(id_persona)
@@ -78,6 +97,7 @@ async def on_message(message):
 
 # await canal.send("lis carrir ni sirvin")
 
+     
 
 # para mensajes de alarma en determinado hora o dia
 @aiocron.crontab("2 6 * * *")  # se reinicia cada 6 am
@@ -90,4 +110,7 @@ cornjob1.start()
 
 
 mantener_vivo()
+bot.run(TOKEN)
+ 
 client.run(TOKEN)
+ 
