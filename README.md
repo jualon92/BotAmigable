@@ -6,7 +6,7 @@ Uptimerobot.com lo mantiene activo mediante pings cada 5 minutos.
 ### Responder a ciertos comandos:
 
 !plex  devuelve valor compra y venta de moneda virtual Plex, se utiliza api https://api.evemarketer.com/ec/  en formato JSON
- 
+!precio nombre_item devuelve precio item promedio en mercado
 !help devuelve lista de comandos
 
 ### Responder a cierto mensaje, mediante listener de discord py, segun la Persona:
