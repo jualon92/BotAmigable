@@ -62,21 +62,41 @@ async def obtener_plex_precio(ctx):
   # obtengo objeto Response
    response_API = requests.get("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142")  
    data = response_API.json() #
-   listaBuy = data[0].get("buy")
-   listaSell = data[0].get("sell") 
+   lista_buy = data[0].get("buy")
+   lista_sell = data[0].get("sell") 
   
-   precioCompraAVG = (listaBuy.get("avg") * 500) / 1000000000 # convencion es hablar de  1.3Billones 
-   precioVentaAVG = listaSell.get("avg") * 500  / 1000000000
+   precio_compra_avg = (lista_buy.get("avg") * 500) / 1000000000 # convencion es hablar de  1.3Billones 
+   precio_venta_avg = lista_sell.get("avg") * 500  / 1000000000
     
-   mensajePlexCompra =  f" Jita (4:4) \nPlex para la Compra: {precioCompraAVG:.2f} Millones"
-   mensajePlexVenta = f"Plex para la Venta:   {precioVentaAVG:.2f} Millones"
+   mensajePlexCompra =  f" Jita (4:4) \nPlex para la Compra: {precio_compra_avg:.2f} Millones"
+   mensajePlexVenta = f"Plex para la Venta:   {precio_venta_avg:.2f} Millones"
    await ctx.send(mensajePlexCompra + "\n" +  mensajePlexVenta )
  
   
 #Ideas a implementar
 #subio o bajo un producto en comparacion a la semana o mes pasado? estaria bueno implementarlo de alguna manera
 #conseguir el precio de cualquier item sin tener que entrar al juego
+@bot.command(name="precio", help="precio de item en Eve Online desde api ")
+async def obtener_item_precio(ctx, nombre_item):
+  # obtengo id del item a buscar en api de id
+    response_API = requests.get(
+        f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}&format=json")
+    data = response_API.json()
+    id_item = data.get("typeID")
+    nombre_obtenido = data.get("typeName")
 
+    response_API_mercado = requests.get(
+        f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142")
+    data_mercado = response_API_mercado.json()
+    precio_compra_avg = data_mercado[0].get("buy").get("avg")
+    precio_venta_avg = data_mercado[0].get("sell").get("avg")
+
+    if (nombre_obtenido != "bad item"):
+        await ctx.send(f"{nombre_obtenido}: \n precio venta: {precio_venta_avg}  \n precio compra: {precio_compra_avg}")
+    else:
+        await ctx.send(f"item con nombre {nombre_item} no encontrado :(  ")
+
+  
 
 
 
