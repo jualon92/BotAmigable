@@ -10,8 +10,6 @@ Se expandio para que busque todo los items del mercado, que extienda la busqueda
 
 ![image](https://user-images.githubusercontent.com/46230600/161393355-06334e6f-1863-4d28-a8f6-e902df43dc1e.png)
 
-Moros no esta disponible a la venta en el mercado principal, entonces se consulta los demas mercados por si hay uno disponible (no se utiliza inicialmente porque no deberian usarse de referencia para la mayoria de los casos)
-![image](https://user-images.githubusercontent.com/46230600/161393481-5a20d447-d55f-49c5-adef-895c5aeb44e1.png)
 
  
 ### Responder a ciertos comandos:
