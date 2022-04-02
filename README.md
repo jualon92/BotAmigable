@@ -5,7 +5,7 @@ Uptimerobot.com lo mantiene activo mediante pings cada 5 minutos.
 ## Como funciones que se buscaban lograr son:
 ### Responder a ciertos comandos:
 
-Se utiliza aiohttp para que las operaciones get no sean bloqueantes
+Se utiliza aiohttp para que pedir detalles a la api sea no-bloqueante
 
 !plex  devuelve valor compra y venta de moneda virtual Plex, se utiliza api https://api.evemarketer.com/ec/  en formato JSON
 
