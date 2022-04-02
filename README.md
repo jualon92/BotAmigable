@@ -2,14 +2,30 @@
 Bot de discord, hosteado en  https://repl.it/  .  
 Uptimerobot.com lo mantiene activo mediante pings cada 5 minutos.
 
-## Como funciones que se buscaban lograr son:
+## Problemas a resolver
+
+Tener que consultar detalles del valor de moneda virtual en juego implicaba interrumpir lo que uno estaba haciendo y abrir el juego. 
+Se expandio para que busque todo los items del mercado, que extienda la busqueda a diferentes mercados, y que muestre si el item esta bajando o subiendo de precio desde un periodo, mostrado diferencia en % 
+
+
+![image](https://user-images.githubusercontent.com/46230600/161393355-06334e6f-1863-4d28-a8f6-e902df43dc1e.png)
+
+Moros no esta disponible a la venta en el mercado principal, entonces se consulta los demas mercados por si hay uno disponible (no se utiliza inicialmente porque no deberian usarse de referencia para la mayoria de los casos)
+![image](https://user-images.githubusercontent.com/46230600/161393481-5a20d447-d55f-49c5-adef-895c5aeb44e1.png)
+
+ 
 ### Responder a ciertos comandos:
 
-Se utiliza aiohttp para que pedir detalles a la api sea no-bloqueante
+Se utiliza aiohttp para que peticiones sobre mercado a las api sean no-bloqueante
 
 !plex  devuelve valor compra y venta de moneda virtual Plex, se utiliza api https://api.evemarketer.com/ec/  en formato JSON
 
-!precio nombre_item devuelve precio item en mercado principal. Si no hay valor de venta alli, aumenta la busqueda a otros mercados. Se utiliza pattern de guardas para evitar una ensalada de if-elif
+!precio nombre_item devuelve precio item en mercado principal. Si no hay valor de venta alli, aumenta la busqueda a otros mercados. Se utiliza pattern de guardas para evitar una ensalada de if-elif. 
+
+Se utiliza import para que la logica al consultar detalles de mercado no dificulten la lectura
+
+!Ademas del precio, se agrego Tendencia, para conocer si subio o bajo el precio del item en los ultimos n dias. Se utiliza api con historial de mercado https://esi.evetech.net/ 
+ 
 
 !help devuelve lista de comandos
 
