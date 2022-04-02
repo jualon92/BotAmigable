@@ -19,11 +19,14 @@ presentes = []
 usuarios_ignorar = []
 cMensajes = 0
 bot = commands.Bot(command_prefix='!')
+
 session = aiohttp.ClientSession()
+
 listaQuien = [  # data deberia tener su import
     "qin ti priginti prrin",
     "who asked you, little doggie"
 ]
+
 
 
 # command implementa !help con resumen de comandos, y utiliza prefijo
@@ -50,9 +53,9 @@ async def tirar_dado(ctx, *argv):
 async def obtener_plex_precio(ctx):
     # obtengo objeto Response
      
-    #async with aiohttp.ClientSession() as session: # 
-    async with session.get("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142") as response: 
-      data = await response.json()
+    async with aiohttp.ClientSession() as session2: # 
+      async with session2.get("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142") as response: 
+        data = await response.json()
       
     lista_buy = data[0].get("buy")
     lista_sell = data[0].get("sell")
@@ -70,18 +73,18 @@ async def obtener_plex_precio(ctx):
 async def obtener_item_precio(ctx, nombre_item):
   
     # obtengo id del item a buscar en api de id
-    #async with aiohttp.ClientSession() as session: # 
-    async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
-      data_item = await response.json(content_type='text/html') #custom
+    async with aiohttp.ClientSession() as session: # 
+      async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
+        data_item = await response.json(content_type='text/html') #custom
   
     id_item = data_item.get("typeID")
     nombre_obtenido = data_item.get("typeName")
 
 
     #obtengo info del item
-    
-    async with session.get(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142") as response: 
-      data_mercado = await response.json() #custom
+    async with aiohttp.ClientSession() as session: 
+      async with session.get(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142") as response: 
+        data_mercado = await response.json() #custom
 
         
      
@@ -95,14 +98,14 @@ async def obtener_item_precio(ctx, nombre_item):
        await ctx.send(f"Precio promedio x unidad de {nombre_obtenido}\nPrecio venta: {precio_venta_avg}  \nPrecio compra: { precio_compra_avg}")
       
     else: #si existe pero api devuelve valor 0, mejor buscar en contratos p2p
-     
-      async with session.get(f"https://api.contractsappraisal.com/v1/prices/{id_item}?include_private=false&bpc=false&security=lowsec") as response: 
-        if (response.status != 200):
-           await ctx.send("item no encontrado")
-        else:
-          dato_contrato = await response.json()  #custom
-          precio_venta_contrato = dato_contrato.get("median")
-          await ctx.send(f"Consultando contratos precio promedio de {nombre_item}\nPrecio venta: {int(precio_venta_contrato) / 1000000000 } B")
+      async with aiohttp.ClientSession() as session5:   
+        async with session5.get(f"https://api.contractsappraisal.com/v1/prices/{id_item}?include_private=false&bpc=false&security=lowsec") as response: 
+          if (response.status != 200):
+             await ctx.send("item no encontrado")
+          else:
+            dato_contrato = await response.json()  #custom
+            precio_venta_contrato = dato_contrato.get("median")
+            await ctx.send(f"Consultando contratos precio promedio de {nombre_item}\nPrecio venta: {int(precio_venta_contrato) / 1000000000 } B")
       
      
 
