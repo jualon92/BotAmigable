@@ -20,15 +20,18 @@ usuarios_ignorar = []
 cMensajes = 0
 bot = commands.Bot(command_prefix='!')
 
-session = aiohttp.ClientSession()
 
 listaQuien = [  # data deberia tener su import
     "qin ti priginti prrin",
     "who asked you, little doggie"
 ]
 
-
-
+async def get_data(link): #no bloqueante
+  async with aiohttp.ClientSession() as session: # 
+      async with session.get(link) as response: 
+        return await response.json()
+ 
+  
 # command implementa !help con resumen de comandos, y utiliza prefijo
 
 # personas se juntan a elegir quien le toca primero y a quien ultimo aleatoriamente
@@ -48,49 +51,50 @@ async def tirar_dado(ctx, *argv):
     await ctx.send(personasLista)
 
 
-# Se piden datos de mercado de mmorpg de cotizacion de moneda virtual
 @bot.command(name="plex", help="precio de plex en Eve Online desde api ")
 async def obtener_plex_precio(ctx):
+    def procesar_plex(numero): # es convencion que el precio sea 500 unidades de plex, en 1B. ej:1.3B
+      return (numero * 500) /  1000000000  
     # obtengo objeto Response
      
-    async with aiohttp.ClientSession() as session2: # 
-      async with session2.get("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142") as response: 
-        data = await response.json()
-      
+    data = await get_data("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142")  
     lista_buy = data[0].get("buy")
     lista_sell = data[0].get("sell")
-
-    precio_compra_avg = (lista_buy.get("wavg") * 500) / \
-        1000000000  # convencion es hablar de  1.3Billones
-    precio_venta_avg = lista_sell.get("wavg") * 500 / 1000000000
+    
+  #convencion es hablar de  1.3Billones
+    precio_compra_avg = procesar_plex(lista_buy.get("wavg"))   
+    precio_venta_avg = procesar_plex(lista_sell.get("wavg"))
+  
+  #string, html
     mensaje_header = "Jita (4:4) -  x 500u Promedio Semanal"
     mensaje_plex_compra = f"\nPlex para la Compra: {precio_compra_avg:.2f} B"
     mensaje_plex_venta = f"\nPlex para la Venta:    {precio_venta_avg:.2f} B"
     await ctx.send(mensaje_header + mensaje_plex_venta + mensaje_plex_compra)
 
 
+
 @bot.command(name="precio", help="precio de item en Eve Online desde api ")
-async def obtener_item_precio(ctx, nombre_item):
-  
+async def obtener_item_precio(ctx, *args): 
+    nombre_item = " ".join(args) 
+    async def obtener_id():
     # obtengo id del item a buscar en api de id
-    async with aiohttp.ClientSession() as session: # 
-      async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
-        data_item = await response.json(content_type='text/html') #custom
-  
+      async with aiohttp.ClientSession() as session: # 
+        async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
+          return await response.json(content_type='text/html') #custom
+
+    data_item = await obtener_id() 
     id_item = data_item.get("typeID")
     nombre_obtenido = data_item.get("typeName")
-
-
+  
     #obtengo info del item
-    async with aiohttp.ClientSession() as session: 
-      async with session.get(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142") as response: 
-        data_mercado = await response.json() #custom
-
+    data_mercado = await get_data(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142")
         
-     
     precio_compra_avg = int(data_mercado[0].get("buy").get("avg"))
     precio_venta_avg = int(data_mercado[0].get("sell").get("avg"))
 
+
+  
+    #logica, estaria mejor en import
     if (nombre_obtenido == "bad item"):  #si no existe aisar al usuario que escribio mal
       await ctx.send(f"item con nombre {nombre_item} no encontrado :(  ")
       
@@ -98,16 +102,15 @@ async def obtener_item_precio(ctx, nombre_item):
        await ctx.send(f"Precio promedio x unidad de {nombre_obtenido}\nPrecio venta: {precio_venta_avg}  \nPrecio compra: { precio_compra_avg}")
       
     else: #si existe pero api devuelve valor 0, mejor buscar en contratos p2p
-      async with aiohttp.ClientSession() as session5:   
-        async with session5.get(f"https://api.contractsappraisal.com/v1/prices/{id_item}?include_private=false&bpc=false&security=lowsec") as response: 
+      async with aiohttp.ClientSession() as session:   
+        async with session.get(f"https://api.contractsappraisal.com/v1/prices/{id_item}?include_private=false&bpc=false&security=lowsec") as response: 
           if (response.status != 200):
              await ctx.send("item no encontrado")
           else:
             dato_contrato = await response.json()  #custom
             precio_venta_contrato = dato_contrato.get("median")
             await ctx.send(f"Consultando contratos precio promedio de {nombre_item}\nPrecio venta: {int(precio_venta_contrato) / 1000000000 } B")
-      
-     
+    
 
 
 def separar_partes(item, n_partes):
