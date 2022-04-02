@@ -10,6 +10,7 @@ import random
 import requests
 import aiohttp
 import json
+from mercado import get_item_price, get_plex_price, obtener_historia
 
 nro_canal = 791515934237917244
 nro_general = 828489491450560603
@@ -27,11 +28,6 @@ listaQuien = [  # data deberia tener su import
     "who asked you, little doggie"
 ]
 
-async def get_data(link): #no bloqueante
-  async with aiohttp.ClientSession() as session: # 
-      async with session.get(link) as response: 
-        return await response.json()
- 
   
 # command implementa !help con resumen de comandos, y utiliza prefijo
 
@@ -54,80 +50,18 @@ async def tirar_dado(ctx, *argv):
 
 @bot.command(name="plex", help="precio de plex en Eve Online desde api ")
 async def obtener_plex_precio(ctx):
-    data_formato = "percentile"
-    def procesar_plex(numero): # es convencion que el precio sea 500 unidades de plex, en 1B. ej:1.3B
-      return (numero * 500) /  1000000000  
-    # obtengo objeto Response
+    await get_plex_price(ctx)
      
-    data = await get_data("https://api.evemarketer.com/ec/marketstat/json?typeid=44992&usesystem=30000142")  
-    lista_buy = data[0].get("buy")
-    lista_sell = data[0].get("sell")
-    
-  #convencion es hablar de  1.3Billones
-    precio_compra_avg = procesar_plex(lista_buy.get(data_formato))   
-    precio_venta_avg = procesar_plex(lista_sell.get(data_formato))
-  
-  #string, html
-    mensaje_header = "Jita (4:4) -  x 500u "
-    mensaje_plex_compra = f"\nPlex para la Compra: {precio_compra_avg:.2f} B"
-    mensaje_plex_venta = f"\nPlex para la Venta:    {precio_venta_avg:.2f} B"
-    await ctx.send(mensaje_header + mensaje_plex_venta + mensaje_plex_compra)
 
-
- 
 @bot.command(name="precio", help="precio de item en Eve Online desde api ")
-async def obtener_item_precio(ctx, *args): 
-    data_formato = "fivePercent" # 95th.  podria ser avg, o wavg 
+async def obtener_item_precio(ctx, *args):
+    await get_item_price(ctx, *args)
     
-    nombre_item = " ".join(args) 
-   # obtengo id del item a buscar en api de id
-    async def obtener_id():
-      async with aiohttp.ClientSession() as session: # 
-        async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
-          return await response.json(content_type='text/html') #custom
 
-    data_item = await obtener_id() 
-    id_item = data_item.get("typeID")
-    nombre_obtenido = data_item.get("typeName")
+@bot.command(name="history", help="precio de item en Eve Online desde api ")
+async def obtener_history(ctx, id):
+    await obtener_historia(ctx,id)
     
-    #obtengo info del item
-    data_mercado = await get_data(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142")
-        
-    precio_compra_info = float(data_mercado[0].get("buy").get(data_formato))
-    precio_venta_info = float(data_mercado[0].get("sell").get(data_formato))
-
-    # como el bot se comporta segun el resultado
-    async def logica_respuesta(): # guardas, busco evitar if-elif hell
-      if (nombre_obtenido == "bad item"):
-        return await ctx.send(f"item con nombre {nombre_item} no encontrado :(  ")
-
-      if (precio_venta_info == 0):
-       async with aiohttp.ClientSession() as session:   
-        async with session.get(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}") as response: 
-          dato_all = await response.json()  #custom
-          precio_venta_todas = reduce_cifras(dato_all[0].get("sell").get(data_formato))
-          precio_compra_todas = reduce_cifras(dato_all[0].get("buy").get(data_formato))
-          return await ctx.send(f"Precio todas las regiones de {nombre_item}\nPrecio venta: {precio_venta_todas} B \n Precio Compra {precio_compra_todas} B")
-
-      if (precio_venta_info >= 1000000): 
-        precio_venta_data =  round(precio_venta_info / 1000000)  
-        precio_compra_data =  round(precio_compra_info / 1000000)
-        return await ctx.send(f"Precio de {nombre_obtenido}\nPrecio venta: {precio_venta_data} Millones \nPrecio compra: {precio_compra_data} Millones")
-
-      if (precio_venta_info > 0):
-        return await ctx.send(f"Precio de {nombre_obtenido}\nPrecio venta: {precio_venta_data} isk \nPrecio compra: {precio_compra_data} isk")
-        
-    await logica_respuesta() 
-
-def reduce_cifras(palabra): #  cuando se trata de billones, se utiliza 1.3b 
-  return round(int(palabra) / 1000000000,2)
-
-def separar_partes(item, n_partes):
-    item_str = str(item)
-    partes = [item_str[i:i+n_partes]
-              for i in range(0, len(item_str), n_partes)]  # [123,342,532]
-    return " ".join(partes)  # 123 342 532
-
 
 @bot.event  # listener mensajes
 async def on_message(message):
