@@ -78,11 +78,10 @@ async def obtener_plex_precio(ctx):
 @bot.command(name="precio", help="precio de item en Eve Online desde api ")
 async def obtener_item_precio(ctx, *args): 
     data_formato = "fivePercent" # 95th.  podria ser avg, o wavg 
-     
-  
+    
     nombre_item = " ".join(args) 
+   # obtengo id del item a buscar en api de id
     async def obtener_id():
-    # obtengo id del item a buscar en api de id
       async with aiohttp.ClientSession() as session: # 
         async with session.get(f"https://www.fuzzwork.co.uk/api/typeid.php?typename={nombre_item}") as response: 
           return await response.json(content_type='text/html') #custom
@@ -94,29 +93,31 @@ async def obtener_item_precio(ctx, *args):
     #obtengo info del item
     data_mercado = await get_data(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}&usesystem=30000142")
         
-    precio_compra_data = float(data_mercado[0].get("buy").get(data_formato))
-    precio_venta_data = float(data_mercado[0].get("sell").get(data_formato))
+    precio_compra_info = float(data_mercado[0].get("buy").get(data_formato))
+    precio_venta_info = float(data_mercado[0].get("sell").get(data_formato))
 
-    
-     # estaria mejor en import,  utilizar oop,  no me gusta maraña de if
-    if (nombre_obtenido == "bad item"):  #si no existe aisar al usuario que escribio mal
-      await ctx.send(f"item con nombre {nombre_item} no encontrado :(  ")
-       
-    elif precio_venta_data > 0 : #si es encontrado, devolver valor de compra y venta en market hub
-      if precio_venta_data >= 1000000: #si es muy grande, setear numero menos digitos para mejor display 
-        precio_venta_data = str(round(precio_venta_data / 1000000)) + " Millones"
-        precio_compra_data = str(round(precio_compra_data / 1000000)) + " Millones"
-      await ctx.send(f"Precio de {nombre_obtenido}\nPrecio venta: {precio_venta_data} \nPrecio compra: {precio_compra_data}")
-     
-      
-    else: #si valor de venta devuelve 0 => se trata de un item exotico, agrandar busqueda
-      async with aiohttp.ClientSession() as session:   
+    # como el bot se comporta segun el resultado
+    async def logica_respuesta(): # guardas, busco evitar if-elif hell
+      if (nombre_obtenido == "bad item"):
+        return await ctx.send(f"item con nombre {nombre_item} no encontrado :(  ")
+
+      if (precio_venta_info == 0):
+       async with aiohttp.ClientSession() as session:   
         async with session.get(f"https://api.evemarketer.com/ec/marketstat/json?typeid={id_item}") as response: 
           dato_all = await response.json()  #custom
           precio_venta_todas = reduce_cifras(dato_all[0].get("sell").get(data_formato))
           precio_compra_todas = reduce_cifras(dato_all[0].get("buy").get(data_formato))
-          await ctx.send(f"Precio todas las regiones de {nombre_item}\nPrecio venta: {precio_venta_todas} B \n Precio Compra {precio_compra_todas} B")
-    
+          return await ctx.send(f"Precio todas las regiones de {nombre_item}\nPrecio venta: {precio_venta_todas} B \n Precio Compra {precio_compra_todas} B")
+
+      if (precio_venta_info >= 1000000): 
+        precio_venta_data =  round(precio_venta_info / 1000000)  
+        precio_compra_data =  round(precio_compra_info / 1000000)
+        return await ctx.send(f"Precio de {nombre_obtenido}\nPrecio venta: {precio_venta_data} Millones \nPrecio compra: {precio_compra_data} Millones")
+
+      if (precio_venta_info > 0):
+        return await ctx.send(f"Precio de {nombre_obtenido}\nPrecio venta: {precio_venta_data} isk \nPrecio compra: {precio_compra_data} isk")
+        
+    await logica_respuesta() 
 
 def reduce_cifras(palabra): #  cuando se trata de billones, se utiliza 1.3b 
   return round(int(palabra) / 1000000000,2)
